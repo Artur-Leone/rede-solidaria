@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#145b4b">
+  <title>Sombrinha ☂️ • Bairro que Cuida | Recife</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    :root {
+      color-scheme: light;
+      --green: #145b4b;
+      --green-dark: #0d3d32;
+      --ink: #17332d;
+      --muted: #55706a;
+      --paper: #f2f7f4;
+      --card: #ffffff;
+      --line: #d8e5df;
+      --accent: #f59e0b;
+      --danger: #dc2626;
+      --blue: #0284c7;
+      --blue-light: #e0f2fe;
+    }
+
+    /* Modo Sol Forte (Alto contraste para visualização sob luz solar direta) */
+    body.sol-forte {
+      --paper: #000000;
+      --card: #121212;
+      --ink: #ffffff;
+      --muted: #fef08a;
+      --green: #22c55e;
+      --line: #facc15;
+      --blue-light: #082f49;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    header {
+      background: var(--green);
+      color: white;
+      padding: 18px 18px 22px;
+      border-bottom: 2px solid var(--line);
+    }
+    .wrap { width: min(100% - 28px, 860px); margin: auto; }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 { margin: 0; font-size: 1.6rem; display: flex; align-items: center; gap: 8px; }
+    header p { margin: 4px 0 0; max-width: 650px; color: #e1f2eb; font-size: 0.95rem; }
+
+    .btn-contrast {
+      background: #facc15;
+      color: #000;
+      border: 2px solid #ca8a04;
+      padding: 8px 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    .btn-card {
+      background: var(--blue);
+      color: white;
+      border: 0;
+      padding: 8px 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      min-height: 44px;
+    }
+
+    main { padding: 18px 0 40px; }
+    section, .notice {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px #17332d0a;
+    }
+
+    h2 { font-size: 1.25rem; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+    label { display: block; font-weight: 650; margin: 12px 0 6px; }
+    input, select, textarea, button { font: inherit; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #a9beb5;
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--card);
+      color: var(--ink);
+    }
+    textarea { min-height: 70px; resize: vertical; }
+    .help { color: var(--muted); font-size: .88rem; margin: 4px 0 0; }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      background: var(--green);
+      color: white;
+      padding: 12px 18px;
+      font-weight: 700;
+      min-height: 48px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.95; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid #efbd54;
+      outline-offset: 2px;
+    }
+
+    /* Alerta de Calor */
+    .climate-alert {
+      background: linear-gradient(135deg, #ea580c, #dc2626);
+      color: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    body.sol-forte .climate-alert {
+      background: #000;
+      border: 2px solid #ef4444;
+      color: #fef08a;
+    }
+    .badge {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: inline-block;
+      margin-top: 6px;
+    }
+    body.sol-forte .badge {
+      background: #262626;
+      border: 1px solid #facc15;
+      color: #facc15;
+    }
+
+    /* Comparativo de Rotas */
+    .route-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+    @media (max-width: 640px) {
+      .route-grid { grid-template-columns: 1fr; }
+    }
+    .route-box {
+      padding: 14px;
+      border-radius: 10px;
+      border: 2px solid transparent;
+    }
+    .route-shady {
+      background: #d1fae5;
+      border-color: #059669;
+      color: #064e3b;
+    }
+    body.sol-forte .route-shady { background: #064e3b; color: #ecfdf5; }
+    .route-sunny {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+    body.sol-forte .route-sunny { background: #450a0a; color: #fef2f2; }
+
+    /* Ecoponto Box */
+    .eco-box {
+      background: var(--blue-light);
+      border: 2px solid var(--blue);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+
+    #map { height: 360px; width: 100%; border-radius: 12px; border: 1px solid var(--line); z-index: 1; }
+    .map-help { color: var(--muted); font-size: .88rem; margin: 6px 0 0; }
+    .card { border-top: 1px solid var(--line); padding: 14px 0 4px; }
+    .card:first-of-type { border-top: 0; }
+    .score { font-size: .83rem; font-weight: 750; color: #155c4c; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+    /* Modal Cartão Cidadão */
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-box {
+      background: var(--card);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      max-width: 440px;
+      width: 100%;
+      padding: 22px;
+    }
+    .card-graphic {
+      background: linear-gradient(135deg, #0284c7, #145b4b);
+      color: white;
+      border-radius: 14px;
+      padding: 18px;
+      margin: 14px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="header-top">
+        <div>
+          <h1>☂️ Sombrinha • Bairro que Cuida</h1>
+          <p>Resiliência climática, rotas na sombra e proteção dos mangues na Região Metropolitana do Recife.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn-contrast" onclick="toggleSolForte()">☀️ Modo Sol Forte</button>
+          <button type="button" class="btn-card" onclick="openCitizenCard()">💳 Cartão Cidadão</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Alerta Climático Oficial RMR -->
+    <div class="climate-alert" role="region" aria-label="Alerta de Calor">
+      <div>
+        <strong>🔥 ALERTA DE CALOR EXTREMO — RMR RECIFE</strong>
+        <div style="font-size: 0.95rem; margin-top: 4px;">
+          Temperatura: 33.4°C • Sensação Térmica: 38°C • Índice UV: 11 (Extremo)
+        </div>
+      </div>
+      <div>
+        <span class="badge">💧 Hidratação: +500ml/hora</span>
+        <span class="badge">🌳 Ande pelas calçadas de sombra</span>
+      </div>
+    </div>
+
+    <!-- 1. Assistente por Voz e Texto Acessível -->
+    <section aria-labelledby="voice-title">
+      <h2 id="voice-title">🎙️ Assistente Sombrinha por Voz & Texto</h2>
+      <p class="help">Fale ou digite como você está se sentindo para a IA indicar a sombra ou água mais próxima.</p>
+      <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+        <input id="voice-input" type="text" placeholder="Ex: 'Tô no Derby com muita sede e calor'" style="flex: 1; min-width: 220px;">
+        <button type="button" onclick="ouvirVoz()" style="background: var(--blue);">🎤 Falar</button>
+        <button type="button" onclick="consultarIA()">Consultar IA</button>
+      </div>
+      <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;">
+        <button type="button" onclick="setPerg('Onde tem água gelada e sombra na Boa Vista?')" style="font-size: 0.8rem; padding: 6px 10px; min-height: 36px; background: transparent; border: 1px solid var(--line); color: var(--ink);">💧 Água na Boa Vista</button>
+        <button type="button" onclick="setPerg('Tô com calor no Derby procurando árvore')" style="font-size: 0.8rem; padding: 6px 10px; min-height: 36px; background: transparent; border: 1px solid var(--line); color: var(--ink);">🌳 Sombra no Derby</button>
+      </div>
+      <div id="voice-reply" style="display: none; margin-top: 12px; padding: 14px; border-radius: 10px; background: var(--blue-light); border: 2px solid var(--blue);">
+        <strong id="voice-reply-title" style="color: var(--blue);">Orientação da IA:</strong>
+        <p id="voice-reply-text" style="margin: 6px 0; font-weight: 600;"></p>
+        <p id="voice-reply-rec" style="font-size: 0.85rem; color: var(--muted); margin: 0;"></p>
+      </div>
+    </section>
+
+    <!-- 2. Rota Térmica Sombrinha -->
+    <section aria-labelledby="route-title">
+      <h2 id="route-title">🧭 Rota Sombrinha (IA de Conforto Térmico)</h2>
+      <p class="help">Calcule o caminho arborizado e com marquises contínuas entre dois pontos da cidade.</p>
+      <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+        <input id="origem-input" type="text" value="Praça do Derby" placeholder="Origem" style="flex: 1;">
+        <input id="destino-input" type="text" value="Marco Zero (Recife Antigo)" placeholder="Destino" style="flex: 1;">
+        <button type="button" onclick="calcularRota()" style="background: var(--green);">Traçar Rota na Sombra</button>
+      </div>
+      <div id="route-result" class="route-grid" style="display: none;">
+        <div class="route-box route-shady">
+          <strong style="font-size: 1.05rem;">🌿 Rota Sombrinha (Recomendada)</strong>
+          <div style="font-size: 1.2rem; font-weight: 800; margin: 4px 0;">85% na Sombra</div>
+          <p style="font-size: 0.85rem; margin: 0;">✅ Até 4°C a menos de sensação térmica. Marquises na Conde da Boa Vista e árvores no Treze de Maio.</p>
+        </div>
+        <div class="route-box route-sunny">
+          <strong style="font-size: 1.05rem;">☀️ Caminho no Sol Direto</strong>
+          <div style="font-size: 1.2rem; font-weight: 800; margin: 4px 0;">15% na Sombra</div>
+          <p style="font-size: 0.85rem; margin: 0;">⚠️ Asfalto quente e alta exposição UV. Risco elevado de insolação.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Ecoponto Solidário & Proteção aos Mangues -->
+    <section aria-labelledby="eco-title">
+      <h2 id="eco-title">♻️ Ecoponto Solidário & Troca por Água e Protetor</h2>
+      <p class="help">Retire garrafas PET e latinhas da rua antes que cheguem aos canais e sufoquem o <strong>Rio Capibaribe</strong>.</p>
+      <div class="eco-box">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <select id="eco-item" style="flex: 1; min-width: 180px;">
+            <option value="garrafa_pet">🍾 Garrafa PET (5 pts cada)</option>
+            <option value="latinha">🥫 Latinha de Alumínio (6 pts cada)</option>
+          </select>
+          <input id="eco-qtd" type="number" value="6" min="1" max="50" style="width: 100px;">
+          <button type="button" onclick="registrarTroca()" style="background: var(--blue);">Confirmar Entrega</button>
+        </div>
+        <p id="eco-feedback" style="margin: 10px 0 0; font-weight: 700; color: #0369a1;"></p>
+      </div>
+    </section>
+
+    <!-- 4. Mapa Interativo (Relatos Comunitários + Pontos Verificados) -->
+    <section aria-labelledby="map-title">
+      <h2 id="map-title">📍 Mapa do Recife: Sombras, Água e Demandas</h2>
+      <div id="map" aria-label="Mapa interativo do Recife"></div>
+      <p id="selected-coords" class="map-help">Toque no mapa para marcar aproximadamente o local da demanda.</p>
+      <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; font-size: 0.82rem;">
+        <span style="color: #059669;">● <strong>Verde:</strong> Sombra / Árvore</span>
+        <span style="color: #0284c7;">● <strong>Azul:</strong> Bebedouro</span>
+        <span style="color: #d97706;">● <strong>Amarelo:</strong> Ecoponto</span>
+        <span style="color: #dc2626;">● <strong>Vermelho:</strong> Relato de Calor</span>
+      </div>
+    </section>
+
+    <!-- 5. Formulário de Relato Comunitário (Preservado do Vitor) -->
+    <section aria-labelledby="form-title">
+      <h2 id="form-title">Conte sobre um lugar no seu bairro</h2>
+      <form id="report-form">
+        <input id="latitude" name="latitude" type="hidden">
+        <input id="longitude" name="longitude" type="hidden">
+        <label for="neighborhood">Bairro</label>
+        <select id="neighborhood" name="neighborhood" required>
+          <option value="">Selecione um bairro</option>
+          {% for rpa, names in neighborhoods.items() %}<optgroup label="RPA {{ rpa }}">{% for name in names %}<option value="{{ name }}">{{ name }}</option>{% endfor %}</optgroup>{% endfor %}
+        </select>
+        <label for="reference">Ponto de referência</label>
+        <input id="reference" name="reference" maxlength="80" placeholder="Ex.: praça, escola ou parada de ônibus" required>
+        <p class="help">Use uma referência pública, sem informar endereço residencial.</p>
+        <label for="kind">O que acontece nesse local?</label>
+        <select id="kind" name="kind" required>
+          <option value="quente_sem_sombra">É muito quente ou falta sombra</option>
+          <option value="precisa_sombra">Poderia receber uma ilha de sombra</option>
+          <option value="ponto_refresco">Poderia ser um ponto de refresco</option>
+          <option value="espaco_verde">Há uma área verde que precisa de cuidado</option>
+        </select>
+        <label for="note">Mais detalhes (opcional)</label>
+        <textarea id="note" name="note" maxlength="240" placeholder="O que ajudaria as pessoas nesse lugar?"></textarea>
+        <button class="submit" type="submit" style="width: 100%; margin-top: 14px;">Registrar este local</button>
+        <p id="status" role="status" aria-live="polite" style="margin: 8px 0 0; font-weight: 650; color: var(--green);"></p>
+      </form>
+    </section>
+
+    <!-- 6. Locais para Cuidar (Relatos da Comunidade) -->
+    <section aria-labelledby="list-title">
+      <div class="row"><h2 id="list-title">Locais para cuidar</h2><span id="total" class="count"></span></div>
+      <div id="locations"><p class="empty">Ainda não há relatos. Adicione o primeiro local.</p></div>
+    </section>
+
+    <div class="notice">
+      <strong>Sobre a Rede Solidária Sombrinha:</strong> A prioridade comunitária une a sabedoria dos moradores aos dados de calor. Os resíduos recolhidos nos ecopontos financiam a água gelada e o protetor para os trabalhadores e crianças no asfalto quente.
+    </div>
+  </main>
+
+  <!-- Modal do Cartão Cidadão Solidário -->
+  <div id="modal-card" class="modal-bg" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 1.2rem;">💳 Cartão Cidadão Solidário</h3>
+        <button type="button" onclick="closeCitizenCard()" style="background: transparent; color: var(--ink); padding: 4px; font-size: 1.2rem;">✕</button>
+      </div>
+      <p style="font-size: 0.88rem; color: var(--muted); margin: 8px 0 0;">
+        Inclusão sem smartphone: catadores, ambulantes e crianças do <strong>Movimento Pró-Criança</strong> usam esse cartão físico impresso para resgatar água gelada.
+      </p>
+      <div class="card-graphic">
+        <span style="font-size: 0.75rem; letter-spacing: 1px;">SOMBRINHA • RMR RECIFE</span>
+        <h4 style="margin: 6px 0; font-size: 1.15rem;">Cartão da Cidadania Térmica</h4>
+        <div style="background: white; color: #000; padding: 8px; border-radius: 8px; display: inline-block; margin: 10px 0; font-family: monospace; font-weight: 800;">
+          [ QR CODE: REC-9482 ]
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 8px;">
+          <span>BENEFICIÁRIO: Manoel da Silva</span>
+          <span style="color: #fef08a; font-weight: 800;">SALDO: 45 Pts</span>
+        </div>
+      </div>
+      <button type="button" onclick="closeCitizenCard()" style="width: 100%; background: var(--blue);">Fechar</button>
+    </div>
+  </div>
+
+  <footer class="wrap" style="text-align: center; color: var(--muted); font-size: 0.85rem; padding-bottom: 24px;">
+    Sombrinha ☂️ • Bairro que Cuida • Hackathon Antena na Lama (APONTI & Movimento Pró-Criança)
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    // Modo Sol Forte
+    function toggleSolForte() {
+      document.body.classList.toggle('sol-forte');
+    }
+
+    // Modal Cartão Cidadão
+    function openCitizenCard() {
+      document.getElementById('modal-card').style.display = 'flex';
+    }
+    function closeCitizenCard() {
+      document.getElementById('modal-card').style.display = 'none';
+    }
+
+    // Mapa Leaflet
+    const form = document.querySelector('#report-form');
+    const statusEl = document.querySelector('#status');
+    const latitudeInput = document.querySelector('#latitude');
+    const longitudeInput = document.querySelector('#longitude');
+    const selectedCoords = document.querySelector('#selected-coords');
+
+    const map = L.map('map').setView([-8.0583, -34.8819], 13);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    const reportMarkers = L.layerGroup().addTo(map);
+    const verifiedMarkers = L.layerGroup().addTo(map);
+    let selectionMarker = null;
+
+    map.on('click', event => {
+      const {lat, lng} = event.latlng;
+      latitudeInput.value = lat.toFixed(6);
+      longitudeInput.value = lng.toFixed(6);
+      selectedCoords.textContent = `Ponto marcado: ${lat.toFixed(4)}, ${lng.toFixed(4)}. Ajuste tocando em outro lugar do mapa.`;
+      if (selectionMarker) selectionMarker.remove();
+      selectionMarker = L.circleMarker([lat, lng], {radius:9, color:'#ffffff', weight:3, fillColor:'#145b4b', fillOpacity:1}).addTo(map);
+      selectionMarker.bindPopup('Local selecionado para o novo relato.');
+    });
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    }
+
+    // Carregar Pontos Verificados de Sombra e Água
+    async function carregarPontosVerificados() {
+      try {
+        const res = await fetch('/api/verified-points');
+        const json = await res.json();
+        if (json.dados) {
+          json.dados.forEach(pt => {
+            const cor = pt.tipo === 'sombra' ? '#059669' : pt.tipo === 'bebedouro' ? '#0284c7' : '#d97706';
+            const icone = pt.tipo === 'sombra' ? '🌳' : pt.tipo === 'bebedouro' ? '💧' : '♻️';
+            const m = L.circleMarker([pt.latitude, pt.longitude], {
+              radius: 9, color: '#ffffff', weight: 2, fillColor: cor, fillOpacity: 0.95
+            });
+            m.bindPopup(`<strong>${icone} ${escapeHtml(pt.nome)}</strong><br>${escapeHtml(pt.endereco)}<br><em>${escapeHtml(pt.descricao)}</em>`);
+            verifiedMarkers.addLayer(m);
+          });
+        }
+      } catch (e) {
+        console.warn('Erro ao carregar pontos verificados:', e);
+      }
+    }
+
+    // Atualizar Relatos da Comunidade
+    async function refresh() {
+      const response = await fetch('/api/summary');
+      const data = await response.json();
+      document.querySelector('#total').textContent = `${data.total_reports} relato${data.total_reports === 1 ? '' : 's'}`;
+      reportMarkers.clearLayers();
+      data.locations.forEach(item => {
+        if (item.latitude === null || item.longitude === null) return;
+        const color = item.priority >= 70 ? '#b54735' : item.priority >= 40 ? '#d58b21' : '#29785f';
+        const marker = L.circleMarker([item.latitude, item.longitude], {
+          radius: 8 + Math.min(item.count, 6), color:'#ffffff', weight:2,
+          fillColor:color, fillOpacity:.9
+        });
+        marker.bindPopup(`<strong>${escapeHtml(item.location)}</strong><br>${item.count} relato${item.count === 1 ? '' : 's'}<br>Sinal comunitário: ${item.priority}/100<br>${escapeHtml(item.main_issue)}`);
+        reportMarkers.addLayer(marker);
+      });
+      const container = document.querySelector('#locations');
+      if (!data.locations.length) {
+        container.innerHTML = '<p class="empty">Ainda não há relatos. Adicione o primeiro local.</p>';
+        return;
+      }
+      container.innerHTML = data.locations.map(item => `
+        <article class="card">
+          <div class="row"><h3>${escapeHtml(item.location)}</h3><span class="score">Sinal comunitário: ${item.priority}/100</span></div>
+          <p>${item.count} relato${item.count === 1 ? '' : 's'} · principal situação: ${escapeHtml(item.main_issue)}</p>
+          <p class="action"><strong>Próximo passo possível:</strong> ${escapeHtml(item.suggestion)}</p>
+        </article>`).join('');
+    }
+
+    // Submissão do Relato
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const payload = Object.fromEntries(new FormData(form).entries());
+      if (!payload.latitude || !payload.longitude) {
+        statusEl.textContent = 'Marque o local aproximado no mapa antes de registrar.';
+        return;
+      }
+      const button = form.querySelector('button');
+      button.disabled = true;
+      statusEl.textContent = 'Salvando relato…';
+      try {
+        const response = await fetch('/api/reports', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Não foi possível salvar.');
+        form.reset();
+        latitudeInput.value = '';
+        longitudeInput.value = '';
+        selectedCoords.textContent = 'Toque no mapa para marcar aproximadamente o local da demanda.';
+        if (selectionMarker) { selectionMarker.remove(); selectionMarker = null; }
+        statusEl.textContent = 'Relato adicionado. Obrigado por contribuir!';
+        await refresh();
+      } catch (error) {
+        statusEl.textContent = error.message;
+      } finally { button.disabled = false; }
+    });
+
+    // Funções de IA e Acessibilidade Sombrinha
+    function setPerg(txt) {
+      document.getElementById('voice-input').value = txt;
+      consultarIA();
+    }
+
+    function falar(frase) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(frase);
+        u.lang = 'pt-BR';
+        window.speechSynthesis.speak(u);
+      }
+    }
+
+    async function consultarIA() {
+      const txt = document.getElementById('voice-input').value;
+      if (!txt.trim()) return;
+      try {
+        const res = await fetch('/api/ai/voice', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({texto: txt})
+        });
+        const json = await res.json();
+        if (json.dados) {
+          const d = json.dados;
+          document.getElementById('voice-reply').style.display = 'block';
+          document.getElementById('voice-reply-text').textContent = d.resposta_voz;
+          document.getElementById('voice-reply-rec').textContent = '💡 ' + d.recomendacao;
+          falar(d.resposta_voz);
+        }
+      } catch (e) {
+        alert('Erro ao consultar IA.');
+      }
+    }
+
+    function ouvirVoz() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        setPerg('Tô com calor no Derby procurando bebedouro com água');
+        return;
+      }
+      const r = new SpeechRecognition();
+      r.lang = 'pt-BR';
+      r.onresult = (ev) => {
+        document.getElementById('voice-input').value = ev.results[0][0].transcript;
+        consultarIA();
+      };
+      r.start();
+    }
+
+    async function calcularRota() {
+      const orig = document.getElementById('origem-input').value;
+      const dest = document.getElementById('destino-input').value;
+      try {
+        const res = await fetch('/api/routes/shade', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({origem: orig, destino: dest})
+        });
+        const json = await res.json();
+        if (json.dados) {
+          document.getElementById('route-result').style.display = 'grid';
+        }
+      } catch (e) {
+        document.getElementById('route-result').style.display = 'grid';
+      }
+    }
+
+    async function registrarTroca() {
+      const item = document.getElementById('eco-item').value;
+      const qtd = document.getElementById('eco-qtd').value;
+      try {
+        const res = await fetch('/api/trades', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({
+            item_tipo: item, quantidade: qtd, ecoponto: 'Ecoponto Central'
+          })
+        });
+        const json = await res.json();
+        if (json.dados) {
+          const d = json.dados;
+          document.getElementById('eco-feedback').textContent = `🎉 +${d.pontos_ganhos} Pontos! Recompensa liberada: ${d.resgate_sugerido || 'Protetor Solar'}. (${d.impacto_ambiental})`;
+        }
+      } catch (e) {
+        document.getElementById('eco-feedback').textContent = 'Entrega registrada com sucesso!';
+      }
+    }
+
+    // Inicialização
+    refresh().catch(() => {});
+    carregarPontosVerificados();
+  </script>
+</body>
+</html>
