@@ -1,0 +1,35 @@
+{
+  "name": "sombrinha-backend",
+  "version": "1.0.0",
+  "description": "API REST do projeto Sombrinha - Hackathon Antena na Lama (APONTI Academy & Movimento Pró-Criança)",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prisma:generate": "prisma generate"
+  },
+  "keywords": [
+    "hackathon",
+    "aponti",
+    "recife",
+    "resiliencia-climatica",
+    "sombrinha",
+    "express"
+  ],
+  "author": "Equipe Sombrinha",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.22.0",
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.8"
+  }
+}

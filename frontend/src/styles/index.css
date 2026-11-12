@@ -1,0 +1,334 @@
+:root {
+  --primary: #0284c7;
+  --primary-dark: #0369a1;
+  --primary-light: #e0f2fe;
+  --secondary: #059669;
+  --secondary-light: #d1fae5;
+  --accent: #f59e0b;
+  --danger: #dc2626;
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Modo Sol Extremo (Alto Contraste para luz solar forte na rua) */
+body.sol-extremo {
+  --bg-main: #000000;
+  --bg-card: #121212;
+  --text-main: #ffffff;
+  --text-muted: #fef08a;
+  --primary: #38bdf8;
+  --primary-light: #082f49;
+  --secondary: #34d399;
+  --secondary-light: #064e3b;
+  --accent: #facc15;
+  --border-color: #facc15;
+  --shadow-md: 0 0 0 2px #facc15;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  border-radius: 8px;
+  min-height: 48px; /* Touch target acessível */
+  padding: 10px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* Header */
+.app-header {
+  background: var(--bg-card);
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.brand-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-contrast {
+  background: #facc15;
+  color: #000;
+  font-weight: 700;
+  border: 2px solid #ca8a04;
+}
+
+.btn-citizen-card {
+  background: var(--secondary);
+  color: white;
+}
+
+/* Alerta Climático */
+.alert-banner {
+  background: linear-gradient(135deg, #ea580c, #dc2626);
+  color: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+body.sol-extremo .alert-banner {
+  background: #000;
+  border: 3px solid #ef4444;
+  color: #fef08a;
+}
+
+.alert-info h3 {
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-badges {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+body.sol-extremo .badge {
+  background: #262626;
+  border: 1px solid #facc15;
+  color: #facc15;
+}
+
+/* Seções */
+.section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Tabs */
+.tabs-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-top: 16px;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  color: var(--text-main);
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Rota Sombrinha vs Sol */
+.route-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+@media (max-width: 640px) {
+  .route-comparison {
+    grid-template-columns: 1fr;
+  }
+}
+
+.route-card {
+  padding: 16px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+}
+
+.route-shady {
+  background: var(--secondary-light);
+  border-color: var(--secondary);
+  color: #064e3b;
+}
+
+body.sol-extremo .route-shady {
+  background: #064e3b;
+  color: #ecfdf5;
+}
+
+.route-sunny {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #7f1d1d;
+}
+
+body.sol-extremo .route-sunny {
+  background: #450a0a;
+  color: #fef2f2;
+}
+
+/* Pontos de Sombra e Água */
+.points-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.point-item {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+  background: var(--bg-card);
+  transition: transform 0.2s ease;
+}
+
+.point-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.point-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+.tag-shade { background: #dcfce7; color: #166534; }
+.tag-water { background: #e0f2fe; color: #075985; }
+.tag-ecopoint { background: #fef3c7; color: #92400e; }
+.tag-cooling { background: #f3e8ff; color: #6b21a8; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  padding: 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}

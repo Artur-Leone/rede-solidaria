@@ -1,0 +1,54 @@
+name: CI Sombrinha
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-test:
+    name: Backend Testes & Verificação
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: backend/package.json
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: Executar Testes Automatizados (Vitest + Supertest)
+        run: npm test
+
+  frontend-build:
+    name: Frontend Build & Validação
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: frontend/package.json
+
+      - name: Instalar Dependências
+        run: npm ci
+
+      - name: Build de Produção (Vite)
+        run: npm run build

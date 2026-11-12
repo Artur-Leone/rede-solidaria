@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PointType {
+  SHADE          // Praça arborizada, marquise contínua, parada coberta
+  WATER_FOUNTAIN // Bebedouro público, fonte de água potável
+  ECOPONTO       // Ponto de coleta de recicláveis (garrafas PET, latinhas)
+  COOLING_CENTER // Prédio público refrigerado (Compaz, biblioteca, posto de apoio)
+}
+
+enum AlertLevel {
+  NORMAL
+  MODERADO
+  EXTREMO
+}
+
+model Point {
+  id          String    @id @default(uuid())
+  name        String
+  type        PointType
+  neighborhood String   // ex: Santo Antônio, Boa Vista, Derby, Afogados
+  address     String?
+  latitude    Float
+  longitude   Float
+  description String?
+  verified    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model RecycleTrade {
+  id            String   @id @default(uuid())
+  citizenCardId String   // Identificador do cartão cidadão ou usuário
+  itemType      String   // PET, latinha, vidro
+  quantity      Int
+  pointsEarned  Int
+  redeemedItem  String?  // "Agua Mineral 500ml", "Protetor Solar", etc.
+  ecopointName  String
+  createdAt     DateTime @default(now())
+}
+
+model ClimateAlert {
+  id          String     @id @default(uuid())
+  region      String     @default("RMR - Recife")
+  temperature Float
+  feelsLike   Float
+  uvIndex     Int
+  level       AlertLevel @default(NORMAL)
+  recommendation String
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+}
